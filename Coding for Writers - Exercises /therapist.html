@@ -17,8 +17,10 @@ line-height: 50%;
 <div id="conversation"></div>
 
 <script>
+// String to hold therapy discussion
 var therapySession;
 
+// Response when there are no better optiond
 const genericResponses = [
 	"Yes, hmmm...",
 	"Go on.",
@@ -26,7 +28,8 @@ const genericResponses = [
 	"That's very interesting.",
 	"Keep talking.",
 	"What do you think that means?"];
-	
+
+// Therapist response to being asked a question
 const questionResponses = [
 	"Why do you ask that?",
 	"What do <em>you</em> think?",
@@ -34,12 +37,14 @@ const questionResponses = [
 	"How long have you been thinking about this?",
 	"That depends on who you ask."];
 	
+// Therapist response when user ends statement with exclamation point
 const exclamationResponses = [
 	"Please calm down.",
 	"You seem very excited about this.",
 	"You sound very passionate about that.",
 	"Are you able to restate that in a more neutral tone?"];
-	
+
+// Mapping between first and third person words
 const povSwitches = {
 		 "I": "you",
 		 "i": "you",
@@ -56,6 +61,7 @@ const povSwitches = {
 		 "i'll": "you'll"
 		}
 
+// Beginnings of therapist response questions 
 const questionStarts = [
 	"Why do you say that",
 	"How is it that",
@@ -63,15 +69,18 @@ const questionStarts = [
 	"And why is that",
 	"Can you explain why you said that"];
 
+// Called when program is loaded 
 function initialize() {
-	therapySession = "<p> I am the psychotherapist. What is your problem? </p>";
+	therapySession = "<p> I am the psychotherapist. Let's talk. </p>";
 	conversation.innerHTML = therapySession;
 }
 
+// Called when submit button is pressed
 function submitLine() {
 	var patientLine = textbox.value;
 	therapySession += "<p> <em>" + patientLine + "</em> </p>";
 	
+	// Choose respone based on last character of patient line.
 	var therapistLine;
 	 if (lastChar(patientLine) == "?") {
 	 therapistLine = randomElement(questionResponses);
@@ -80,7 +89,7 @@ function submitLine() {
 	 } else {
 	 therapistLine = createQuestion(patientLine);
 	 }
-	 // Still no good response, so use a basic response.
+	 // No good response; use basic response 
 	 if (therapistLine == null) {
 	 therapistLine = randomElement(genericResponses);
 	 }
@@ -94,19 +103,26 @@ function randomElement(myArray) {
 	return myArray[index];
 }
 
+// Returns last character of a string
 function lastChar(myString) {
 	return myString.substring(myString.length-1);
 }
+
+// Creates question from patient statement
 function createQuestion(patientLine) {
+	//Look for the word "you"
 	if (patientLine.toLowerCase().indexOf("you") != -1) {
 		 // Can't handle this one. Return null.
 		 return null;
 		 }	
+	// Removeperiod at the end
 	if (lastChar(patientLine) == ".") {
 		patientLine = patientLine.substring(0, patientLine.length - 1);	
 	}
+	// Add spaces at the beginning and end
 	var modifiedLine = " " + patientLine + " ";
 	
+	// Loop through all properties and replace first person with second person
 	var found = false;
 	for (var property in povSwitches) {
 		if (povSwitches.hasOwnProperty(property)) {
@@ -118,10 +134,14 @@ function createQuestion(patientLine) {
 	 }
 	 }
 	}
+	// If there's a replacement, return a question 
 	if (found) {
 		 modifiedLine = modifiedLine.substring(0, modifiedLine.length - 1);
+		 
+		 // Create full question and return.
 		 return randomElement(questionStarts) + " " + modifiedLine + "?";
 		 }
+	// Return null if no replacement was made 
 		 return null;
 		}
 
