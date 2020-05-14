@@ -1,0 +1,131 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<style>
+p {
+line-height: 50%;
+}
+</style>
+</head>
+<body onload="initialize()">
+
+<h1>Eliza</h1>
+
+<p>Write here: <input id="textbox" size="150"/></p>
+<p><button onclick="submitLine()">Submit</button></p>
+
+<div id="conversation"></div>
+
+<script>
+var therapySession;
+
+const genericResponses = [
+	"Yes, hmmm...",
+	"Go on.",
+	"Why do you say that?",
+	"That's very interesting.",
+	"Keep talking.",
+	"What do you think that means?"];
+	
+const questionResponses = [
+	"Why do you ask that?",
+	"What do <em>you</em> think?",
+	"That's an interesting question.",
+	"How long have you been thinking about this?",
+	"That depends on who you ask."];
+	
+const exclamationResponses = [
+	"Please calm down.",
+	"You seem very excited about this.",
+	"You sound very passionate about that.",
+	"Are you able to restate that in a more neutral tone?"];
+	
+const povSwitches = {
+		 "I": "you",
+		 "i": "you",
+		 "me": "you",
+		 "myself": "yourself",
+		 "am": "are",
+		 "my": "your",
+		 "My": "your",
+		 "I'm": "you're",
+		 "I'd": "you'd",
+		 "I'll": "you'll",
+		 "i'm": "you're",
+		 "i'd": "you'd",
+		 "i'll": "you'll"
+		}
+
+const questionStarts = [
+	"Why do you say that",
+	"How is it that",
+	"Can you tell me more about how",
+	"And why is that",
+	"Can you explain why you said that"];
+
+function initialize() {
+	therapySession = "<p> I am the psychotherapist. What is your problem? </p>";
+	conversation.innerHTML = therapySession;
+}
+
+function submitLine() {
+	var patientLine = textbox.value;
+	therapySession += "<p> <em>" + patientLine + "</em> </p>";
+	
+	var therapistLine;
+	 if (lastChar(patientLine) == "?") {
+	 therapistLine = randomElement(questionResponses);
+	 } else if (lastChar(patientLine) == "!") {
+	 therapistLine = randomElement(exclamationResponses);
+	 } else {
+	 therapistLine = createQuestion(patientLine);
+	 }
+	 // Still no good response, so use a basic response.
+	 if (therapistLine == null) {
+	 therapistLine = randomElement(genericResponses);
+	 }
+	 
+	 therapySession += "<p>" + therapistLine + "</p>";
+	 conversation.innerHTML = therapySession;
+	}
+
+function randomElement(myArray) {
+	var index = Math.floor(Math.random() * myArray.length);
+	return myArray[index];
+}
+
+function lastChar(myString) {
+	return myString.substring(myString.length-1);
+}
+function createQuestion(patientLine) {
+	if (patientLine.toLowerCase().indexOf("you") != -1) {
+		 // Can't handle this one. Return null.
+		 return null;
+		 }	
+	if (lastChar(patientLine) == ".") {
+		patientLine = patientLine.substring(0, patientLine.length - 1);	
+	}
+	var modifiedLine = " " + patientLine + " ";
+	
+	var found = false;
+	for (var property in povSwitches) {
+		if (povSwitches.hasOwnProperty(property)) {
+	 		var modifiedProperty = " " + property + " ";
+			 if (modifiedLine.indexOf(modifiedProperty) != -1) {
+	 			modifiedLine = modifiedLine.replace(modifiedProperty,
+	 			" " + povSwitches[property] + " ");
+	 			found = true;
+	 }
+	 }
+	}
+	if (found) {
+		 modifiedLine = modifiedLine.substring(0, modifiedLine.length - 1);
+		 return randomElement(questionStarts) + " " + modifiedLine + "?";
+		 }
+		 return null;
+		}
+
+</script>
+</body>
+
+</html>
